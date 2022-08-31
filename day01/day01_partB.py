@@ -1,7 +1,9 @@
 # adventOfCode 2016 day 1, part B
 # https://adventofcode.com/2016/day/1
 
-import copy
+
+import math
+import sys
 
 status = {
     'vertical': 0,
@@ -9,22 +11,37 @@ status = {
     'orientation': 0
 }
 
-# starting_status = copy.deepcopy(status)
-# Reading input from the input file
-input_filename='input_sample2.txt'
+def degrees_to_unit_vector(degrees):
+    trig_calculation = [
+        round(math.sin(degrees * math.pi/180)) ,
+        round(math.cos(degrees * math.pi/180))
+        ]
+    
+    return (
+        'vertical' if trig_calculation.index(0) == 0 else 'horizontal',
+        sum(trig_calculation)
+    )
+
+# Read input file
+input_filename='input.txt'
 print(f'\nUsing input file: {input_filename}\n')
 with open(input_filename) as f:
     in_string = f.readline().rstrip()
 
 
-def add_points(all_points_visited, magnitude, status):
-    # position = [status['horizontal'], status['vertical']]
-    for magnitude_partial in range(1, magnitude+1):
+def add_points(all_points_visited, magnitude, status, unit_vector):
+    for unused_variable in range(1, magnitude+1):
+        status[unit_vector[0]] += unit_vector[1]
+        if (status['horizontal'], status['vertical']) in all_points_visited:
+            print('The answer to part B is: ', end='')
+            print( abs(status['horizontal']) + abs(status['vertical']) )
+            print()
+            sys.exit('Program Ending Successfully ...\n')
         all_points_visited.add( (status['horizontal'], status['vertical']) )
 
 all_points_visited = {(0,0)}
 
-# Parsing input file   
+
 input_list = in_string.split(', ')
 for segment in input_list:
     if segment[0] == 'L':
@@ -33,18 +50,6 @@ for segment in input_list:
         status['orientation'] = (status['orientation'] + 90) % 360
 
     magnitude = int(segment[1:])
-    add_points(all_points_visited, magnitude, status)
-    if status['orientation'] == 0:
-        status['vertical'] += magnitude
-    elif status['orientation'] == 90:
-        status['horizontal'] += magnitude
-    elif status['orientation'] == 180:
-        status['vertical'] -= magnitude
-    elif status['orientation'] == 270:
-        status['horizontal'] -= magnitude
-    
-    
-
-# answer_A = abs(status['horizontal']) + abs(status['vertical'])
-# print(f'The answer to part A is {answer_A}\n')
+    unit_vector = degrees_to_unit_vector(status['orientation'])
+    add_points(all_points_visited, magnitude, status, unit_vector)
 
