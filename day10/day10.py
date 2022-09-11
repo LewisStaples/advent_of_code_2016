@@ -36,7 +36,11 @@ class Bot(Destination):
         i_high = rule_input_list.index('high')
         self.high = {'dest_number': int(rule_input_list[i_high+3]), 'dest_type': DestinationType[rule_input_list[i_high+2]]}
 
-        dummy = 123
+        # Rule out edge case
+        if self.low['dest_number'] == self.high['dest_number']:
+            if self.low['dest_type'] == self.high['dest_type'] == DestinationType.bot:
+                ValueError('Edge case:  we cannot have a bot sending both chips to the same [other] bot')
+
 
 
     def add_value(self, value):
@@ -49,8 +53,8 @@ class Bot(Destination):
         return len(self.values)
 
     def remove_bots(self):
-        if len(self.values) != 2:
-            raise ValueError('Wrong number of robots')
+        if len(self.values) < 2:
+            raise ValueError('not enough robots!')
         low_val, high_val = min(self.values), max(self.values)
         self.values = set()
         return {'low': (low_val, self.low['dest_type'], self.low['dest_number']), 
@@ -106,15 +110,47 @@ class MicrochipFacility:
         for bot_loc in self.initial_chip_locations:
             self.transfer_value(None, bot_loc)
 
-        #
-        # while True:
-        for i in range(5):
-            pass
+
+        while True:
+            for bot_num in self.bots:
+                if len(self.bots[bot_num].values) == 2:
+                    # Verify that there is space to transfer the bots to
+                    if self.bots[bot_num].low['dest_type'] == DestinationType.bot:
+                        if len(self.bots[
+                            self.bots[bot_num].low['dest_number']
+                        ].values) >= 2:
+                            continue
+                    if self.bots[bot_num].high['dest_type'] == DestinationType.bot:
+                        if len(self.bots[
+                            self.bots[bot_num].high['dest_number']
+                        ].values) >= 2:
+                            continue
+
+                #     # Transfer the bots: low and then high
+                #     self.transfer_value((min(self.bots.values), DestinationType.bot, self.bots[bot_num].low['dest_number']), 
+                #     (self.bots.values[0], DestinationType.bot, self.bots[bot_num].high['dest_number']))
+                #     break
+
+                # elif len(self.bot[bot_num]) > 2:
+                #     raise ValueError(f'Bot # {bot_num} has more than two chips!!!')
+
+            # This should only happen if no record triggered a break from the for loop
+            break
 
     def transfer_value(self, old_chiploc, new_chiploc):
         if old_chiploc is not None:
-            dummy = 123
-        
+            old_chip_value = old_chiploc[0]
+            old_dest_num = old_chiploc[2]
+
+            # You can't transfer chips out of any output !!!
+            if old_chiploc[1] != DestinationType.bot:
+                raise ValueError('Bad Old LocationType: ' + old_chiploc[1])
+
+
+
+
+            self.bots[old_dest_num].values.remove(old_chip_value)
+
         new_chip_value = new_chiploc[0]
         new_dest_num = new_chiploc[2]
 
