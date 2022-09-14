@@ -20,6 +20,25 @@ future_states_set = set()
 current_state = dict()
 
 
+def invalid_combination(combination):
+    generator_types = set()
+    microchip_types = set()
+    for component in combination:
+        if component[-1] == 'G':
+            # generator_types.
+            generator_types.add(component[:-2])
+        elif component[-1] == 'M':
+            microchip_types.add(component[:-2])
+    
+    # If there are any microchips
+    if len(generator_types) > 0:
+        # and if there are any generators without a matching microchip
+        if len(microchip_types - generator_types) > 0:
+            return False
+    
+    return True
+
+
 # Reading input from the input file
 input_filename='input.txt'
 print(f'\nUsing input file: {input_filename}\n')
