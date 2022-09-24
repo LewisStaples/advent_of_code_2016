@@ -1,0 +1,20 @@
+
+Rethinking AoC-2016 Day 11:
+
+Hard-coding in fixed number of floors: four
+
+Will represent each state internally as a nested tuple.
+
+The outer tuple will be one element for chips at element 0, another for generators at element 1.
+
+The zero-th element in the outer tuple will be an inner tuple that lists the floors of all chips, and it will be ascending order of floor numbers.  
+
+The one-th element in the outer tuple will be an inner tuple that lists the floors of generators, in the order of the chips.  If two chips are on the same floor and their associated generators are on different floors, then those generators will be in ascending order in the one-th inner tuple.  
+
+The list representation of the state will have two additional elements for the floor where the elevator is, and how many steps has it taken to get to that state.
+
+
+
+Have a dictionary with index tuple of two inner tuples, and value number of combining elevator floor and the number of steps that were required to get there.
+
+
