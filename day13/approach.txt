@@ -1,0 +1,17 @@
+# adventOfCode 2016 day 13
+# https://adventofcode.com/2016/day/13
+
+Thoughts on how to approach the problem (thoughts from before writing any code)
+Use Dijkstra's_algorithm.
+
+The initial node is (1,1)
+
+Each node has up to four adjacent nodes:  up, down, left, right (diagonals are not allowed, per the diagrams)
+
+Disallowed nodes are any nodes with either coordinate less than zero, as well any nodes that are a wall.
+
+Data structure # 1:  Python dict with key tuple of two integers (coordinates), and value an integer indicating how many steps it takes to go from (1,1) to that position ... note that walls will assigned a value of float('inf').
+
+Data structure # 2:  Python list of coordinate tuples that have been discovered (and aren't walls), but whose neighbors haven't been discovered yet.  Append new coordinates to the end of the list, and pop from the start of the list to ensure that points are first evaluated at their lowest distance from the start point.
+
+
