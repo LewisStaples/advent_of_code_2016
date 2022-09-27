@@ -9,26 +9,29 @@ destination = None
 inf = float('inf')
 
 # Reading input from the input file
-input_filename='input_sample0.txt'
+input_filename='input.txt'
 print(f'\nUsing input file: {input_filename}')
 with open(input_filename) as f:
-    in_string1 = f.readline().rstrip()  
-    favorite_number = int(in_string1[34:])
+    in_string = f.readline().rstrip()  
+    favorite_number = int(in_string[34:])
 
-    in_string2 = f.readline().rstrip()  
-    destination = in_string2[21:]
+    in_string = f.readline().rstrip()  
+    destination = in_string[21:]
     destination = destination.split(',')
     destination = [int(x) for x in destination]
     destination = tuple(destination)
 
+    in_string = f.readline().rstrip()
+    number_of_steps = int(in_string[26:])
 
-del in_string1, in_string2, input_filename, f
+del in_string, input_filename, f
 
 origin = (1,1)
 
 print(f'Origin: {origin}')
-print(f'Intended destination: {destination}')
 print(f'Favorite number: {favorite_number}')
+print(f'Intended destination: {destination}')
+print(f'Number of steps (part B): {number_of_steps}')
 print()
 
 adjacent_directions = ((1,0), (-1,0),(0,1),(0,-1))
@@ -42,6 +45,9 @@ while True:
     for adjacent_direction in adjacent_directions:
         # Define adjacent location
         adjacent_location = (current_location[0] + adjacent_direction[0], current_location[1] + adjacent_direction[1])
+        # Check if valid
+        if adjacent_location[0] < 0 or adjacent_location[1] < 0:
+            continue
         # See if adjacent location has already been evaluated
         if adjacent_location in known_locations:
             # It's been evaluated already, so skip it
@@ -61,8 +67,14 @@ while True:
         known_locations[adjacent_location] = known_locations[current_location] + 1
         # Check if objective has been reached
         if adjacent_location == destination:
-            print(f'The shortest path (answer to A) is {known_locations[adjacent_location]}')
-            sys.exit('Program completed successfully')
+            print(f'The shortest path (answer to A) is {known_locations[adjacent_location]}\n')
+            sys.exit('Program completed successfully\n')
 
         # plan to check out its adjacents
         locations_needing_neighbor_analysis.append(adjacent_location)
+
+        if known_locations[adjacent_location] == number_of_steps:
+            print(f'The number of locations reachable in {number_of_steps} steps (the last is the answer to B) is {len(known_locations) - len([x for x in known_locations.values() if x == inf])}\n')
+
+
+

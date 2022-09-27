@@ -1,2 +1,3 @@
 Office designers favorite number: 10
 Desired destination: 7,4
+Number of steps (part B): 1
