@@ -23,7 +23,7 @@ def test_seek_repeat():
     assert seek_repeat('aaaaabbbbb', 3) == 'a'
 
 # Reading input from the input file
-input_filename='input.txt'
+input_filename='input_sample0.txt'
 print(f'\nUsing input file {input_filename}')
 with open(input_filename) as f:
     salt = f.readline().rstrip()
