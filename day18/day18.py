@@ -49,8 +49,8 @@ current_row = None
 input_filename='input_sample1.txt'
 print(f'\nUsing input file:  {input_filename}')
 with open(input_filename) as f:
-    current_row = f.readline().rstrip()
-   
+    first_row = f.readline().rstrip()
+current_row = first_row
 NUM_ROWS = calc_num_rows(current_row)
 print(f'Contents of input file:  {current_row}')
 print(f'Number of rows to calculate: {NUM_ROWS}\n')
@@ -61,4 +61,9 @@ for i in range(NUM_ROWS):
     current_row = get_new_row(current_row)
 print(f'The answer to part A is there are {safetile_count} safe tiles\n')
 
-
+current_row = first_row
+safetile_count = 0
+for i in range(400000):
+    safetile_count += current_row.count('.')
+    current_row = get_new_row(current_row)
+print(f'The answer to part B is there are {safetile_count} safe tiles\n')
