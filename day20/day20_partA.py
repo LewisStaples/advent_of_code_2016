@@ -7,7 +7,7 @@ import sys
 
 all_invalid_numbers = dict()
 
-input_filename='input.txt'
+input_filename='input_sample0.txt'
 print(f'\nUsing input file: {input_filename}\n')
 with open(input_filename) as f:
     # Pull in each line from the input file
@@ -15,8 +15,6 @@ with open(input_filename) as f:
         in_string = in_string.rstrip()
         [lower, upper] = [int(x) for x in in_string.split('-')]
         all_invalid_numbers[lower] = upper
-
-dummy = 123
 
 next_lower = 0
 for key in sorted(all_invalid_numbers.keys()):
