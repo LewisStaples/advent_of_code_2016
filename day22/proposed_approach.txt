@@ -1,4 +1,4 @@
-Proposed Approach
+Approach to part A:
 
 Consider all possibilities for node A (unless node A used == 0T)
   For each node A possibility, consider all possible choices for node B
@@ -9,15 +9,15 @@ Have a list of named tuples, where the list is sorted by "Avail"
 
 Initialize the variable for number of valid pairs to zero
 
-Traverse the list:  1st traversal
-  Create a lookup table for "Avail" to number of nodes with "Avail" >= than that
+(Note:  original lookup table idea was dropped)
 
-Traverse the list:  2nd traversal
-  For each element, retrieve "Used" and "Avail" values
-      If "Used" == 0, disregard it
-      Use the lookup table to get the number of nodes that can contain this.
-      If this node's "Avail" is >= than it's "Used," then reduce the number (from lookup table) by one
-      Update number of valid pairs
+Consider all nodes as a potential node A
+(unless for any [node A]s with a "used" amount of zero)
+
+  Consider all nodes as a potential node B
+  (unless A and B are the same node)
+
+    If node A's "Used" <= node B's "Avail", increment the count of valid pairs.
 
 At the end, the total number of valid pairs should have been successfully calculated.
 
