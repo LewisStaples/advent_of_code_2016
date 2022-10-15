@@ -3,10 +3,13 @@
 
 
 from collections import namedtuple
+import sys
+
 
 node_used_tuple = []
 NODE_AVAIL_DICT = dict()
 UsedNode = namedtuple('Node', ['GridCoords', 'Used'])
+max_x = 0
 
 def modify_input_field(in_string):
     # Remove T units at end of memory values
@@ -33,7 +36,8 @@ with open(input_filename) as f:
         in_fields_used = [in_fields[0], in_fields[2]]
         node_used_tuple.append(UsedNode(*in_fields_used))
         NODE_AVAIL_DICT[in_fields[0]] = in_fields[3]
-
+        max_x = max(max_x, in_fields[0][0])
+node_used_tuple.insert(0, (max_x,0))
 node_dicts = dict()
 node_dicts[tuple(node_used_tuple)] = 0
 moves_complete = 0
@@ -45,39 +49,49 @@ while True:
             node_used_tuple_list.append(node_used_tuple)
 
     for node_used_tuple in node_used_tuple_list:
-        for i, nodeA in enumerate(node_used_tuple):
+        for i, nodeA in enumerate(node_used_tuple[1:]):
             # Eliminate pairs where nothing gets moved
             if nodeA.Used == 0:
                 continue
-            for j, nodeB in enumerate(node_used_tuple):
+            for j, nodeB in enumerate(node_used_tuple[1:]):
                 # Eliminate "pairs" with the same node is repeated
                 if i == j:
                     continue
                 # Eliminate pairs that aren't adjacent
                 if abs(nodeA.GridCoords[0] - nodeB.GridCoords[0]) + abs(nodeA.GridCoords[1] - nodeB.GridCoords[1]) >= 2:
                     continue
+                # Elminate pairs where nodeA is the target and nodeB has more than zero memory
+                if nodeA.GridCoords == node_used_tuple[0]:
+                    if nodeB.Used > 0:
+                        continue
                 # Eliminate pairs where there is not enough available space to move to
                 if nodeA.Used <= NODE_AVAIL_DICT[nodeB.GridCoords]:
                     # do something with them
                     node_used_tuple__new = [] # starting with a list
                     for node in node_used_tuple:
-                        node_used_tuple__new.append(node)
+                        if node == nodeA:
+                            node_used_tuple__new.append(nodeB)
+                        elif node == nodeB:
+                            node_used_tuple__new.append(nodeA)
+                            # If moved node is the target
+                            if nodeA.GridCoords == node_used_tuple[0]:
+                                pass
+                                # Update targets' location
+                                node_used_tuple__new[0] = nodeB.GridCoords
+                                if node_used_tuple__new[0] == (0,0):
+                                    sys.exit('The problem is now solved')
+                                # If target has reached (0,0), the problem is now solved
+
+                        else:
+                            node_used_tuple__new.append(node)
                     node_used_tuple__new = tuple(node_used_tuple__new)
  
                     dummy = 123
 
                     if node_used_tuple__new not in node_dicts:
                         node_dicts[node_used_tuple__new] = moves_complete + 1
-    break
+    # break
     moves_complete += 1
 
-
-# MORE FUNCTIONALITY NEEDED:
-# (1) Prevent pairing if nodeA has the target data and nodeB has more than 0 in memory
-# (because that would lead to mixing of nodeA and nodeB's content)
-# 
-# (2) Have a variable indicating which node has the target data, which is needed to:
-#   (a) Accomplish the constraint in point 1 above
-#   (b) Detect when the problem is solved.
 
 
