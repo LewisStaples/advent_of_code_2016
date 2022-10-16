@@ -1,29 +1,41 @@
 # adventOfCode 2016 day 22
 # https://adventofcode.com/2016/day/22
 
+# Show three types of nodes:  
+# the one zero-used amount node, 
+# the few nodes with very large used amounts,
+# for the rest, show their smallest size and largest used amounts
+#
+# This shows that there is one zero used node.
+# There are six nodes with used amounts that are almost 500 and their sizes not much larger
+# (they can't ever be swapped any any other node)
+# The other nodes (not counting the seven above) has used amounts between 64 and 73
+# and these can only be swapped with the zero use node.
 
 from collections import namedtuple
-import sys
 
+node_list = []
+count_valid_pairs = 0
+Node = namedtuple('Node', ['Filesystem', 'Size', 'Used', 'Avail', 'UsePct'])
+target_x = 0
 
-node_used_tuple = []
-NODE_AVAIL_DICT = dict()
-UsedNode = namedtuple('Node', ['GridCoords', 'Used'])
-max_x = 0
-
-def modify_input_field(in_string):
-    # Remove T units at end of memory values
+def remove_unit(in_string):
     if not in_string.isdigit():
         if in_string[:-1].isdigit():
             return int(in_string[:-1])
-    # Convert filesystem field into grid coordinates
-    grid_coords = in_string[16:].split('-y')
-    grid_coords = [int(x) for x in grid_coords]
-    return tuple(grid_coords)
+    return in_string
 
+def get_x_coordinate(in_string):
+    i0 = in_string.find('-x')
+    i1 = in_string.find('-y')
+    return int(in_string[i0+2:i1])
+
+def get_y_coordinate(in_string):
+    i = in_string.find('-y')
+    return int(in_string[i+2:])
 
 # Reading input from the input file
-input_filename='input_sample0.txt'
+input_filename='input.txt'
 print(f'\nUsing input file: {input_filename}\n')
 with open(input_filename) as f:
     # Pull in each line from the input file
@@ -32,66 +44,42 @@ with open(input_filename) as f:
             continue
         in_string = in_string.rstrip()
         in_fields = in_string.split()
-        in_fields = [modify_input_field(x) for x in in_fields]
-        in_fields_used = [in_fields[0], in_fields[2]]
-        node_used_tuple.append(UsedNode(*in_fields_used))
-        NODE_AVAIL_DICT[in_fields[0]] = in_fields[3]
-        max_x = max(max_x, in_fields[0][0])
-node_used_tuple.insert(0, (max_x,0))
-node_dicts = dict()
-node_dicts[tuple(node_used_tuple)] = 0
-moves_complete = 0
+        in_fields = [remove_unit(x) for x in in_fields]
+        target_x = max(target_x, get_x_coordinate(in_fields[0]))
+        node_list.append(Node(*in_fields))
 
-while True:
-    node_used_tuple_list = []
-    for node_used_tuple, i in node_dicts.items():
-        if i == moves_complete:
-            node_used_tuple_list.append(node_used_tuple)
+largest_size = 0
+smallest_size = float('inf')
+largest_used = 0
+smallest_used = float('inf')
 
-    for node_used_tuple in node_used_tuple_list:
-        for i, nodeA in enumerate(node_used_tuple[1:]):
-            # Eliminate pairs where nothing gets moved
-            if nodeA.Used == 0:
-                continue
-            for j, nodeB in enumerate(node_used_tuple[1:]):
-                # Eliminate "pairs" with the same node is repeated
-                if i == j:
-                    continue
-                # Eliminate pairs that aren't adjacent
-                if abs(nodeA.GridCoords[0] - nodeB.GridCoords[0]) + abs(nodeA.GridCoords[1] - nodeB.GridCoords[1]) >= 2:
-                    continue
-                # Elminate pairs where nodeA is the target and nodeB has more than zero memory
-                if nodeA.GridCoords == node_used_tuple[0]:
-                    if nodeB.Used > 0:
-                        continue
-                # Eliminate pairs where there is not enough available space to move to
-                if nodeA.Used <= NODE_AVAIL_DICT[nodeB.GridCoords]:
-                    # do something with them
-                    node_used_tuple__new = [] # starting with a list
-                    for node in node_used_tuple:
-                        if node == nodeA:
-                            node_used_tuple__new.append(nodeB)
-                        elif node == nodeB:
-                            node_used_tuple__new.append(nodeA)
-                            # If moved node is the target
-                            if nodeA.GridCoords == node_used_tuple[0]:
-                                pass
-                                # Update targets' location
-                                node_used_tuple__new[0] = nodeB.GridCoords
-                                if node_used_tuple__new[0] == (0,0):
-                                    sys.exit('The problem is now solved')
-                                # If target has reached (0,0), the problem is now solved
+large_nodes = set()
+for i, nodeA in enumerate(node_list):
+    if nodeA.Used > 100:
+        large_nodes.add(nodeA)
+        continue
+    if nodeA.Used == 0:
+        print('Used is zero at node: ', end='')
+        print(nodeA)
+        print(f'This is at coordinates:({get_x_coordinate(nodeA.Filesystem)},{get_y_coordinate(nodeA.Filesystem)})')
 
-                        else:
-                            node_used_tuple__new.append(node)
-                    node_used_tuple__new = tuple(node_used_tuple__new)
- 
-                    dummy = 123
+    else:
+        smallest_used = min(smallest_used, nodeA.Used)
+        largest_size = max(largest_size, nodeA.Size)
 
-                    if node_used_tuple__new not in node_dicts:
-                        node_dicts[node_used_tuple__new] = moves_complete + 1
-    # break
-    moves_complete += 1
+    smallest_size = min(smallest_size, nodeA.Size)
+    largest_used = max(largest_used, nodeA.Used)
 
 
+print()
+for large_node in large_nodes:
+    print('Large usage node is: ', end='')
+    print(large_node, end='')
+    print(f', at coordinates: ({get_x_coordinate(nodeA.Filesystem)},{get_y_coordinate(nodeA.Filesystem)})')
+    
+print(f'\nLargest size found in any node (except for those listed as large above): {largest_size}')
+print(f'Smallest size found in any node: {smallest_size}')
+print(f'Largest used found in any node (except for those listed as large above): {largest_used}')
+print(f'Smallest used found in any node (except for the zero used node above): {smallest_used}\n')
 
+print(f'The "target" node is at coordinates: ({target_x}, 0)\n')
