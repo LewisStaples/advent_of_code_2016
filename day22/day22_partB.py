@@ -15,8 +15,10 @@
 # and these can only be swapped with the zero use node.
 
 from collections import namedtuple
-from itertools import count
 import numpy as np
+
+class NewIteration(Exception):
+    pass
 
 node_list = []
 count_valid_pairs = 0
@@ -142,3 +144,61 @@ while True:
             break
 
 # NEXT .... take all steps involving both zero-node and target-node to get target-node to (0,0)
+# Assume that all the target can reach its destination via solely moving to the left
+# Therefore, each step to the left can be treated as its own problem
+
+step_count = min(zero_node_history[(max_x - 1, 0)], 2 + zero_node_history[(max_x, 1)])
+# zero_node_coords = (max_x - 1, 0)
+zero_node_history = dict()
+zero_node_history[(max_x - 1, 0)] = step_count
+del del_node, list_latest_zero_nodes, new_node, node, node_coords, node_count
+
+zero_nodes = []
+while target_node_coords != (0,0):
+    try:
+        for zero_node_coords in zero_node_history:
+            if zero_node_history[zero_node_coords] == step_count:
+                zero_nodes.append(zero_node_coords)
+
+        step_count += 1
+
+        for zero_node_coords in zero_nodes:
+            for del_node in [(-1,0),(0,-1),(0,1),(1,0)]:
+                new_node = tuple(np.add(zero_node_coords, del_node))
+                    # new_node = tuple(np.add(node, del_node))
+                    
+                # Verify that x and y values aren't outside of the grid's limits
+                if True in [new_node[0] < 0, new_node[1]< 0, new_node[0] > max_x, new_node[1] > max_y]:
+                    continue
+                # Verify that new_node isn't very, very large
+                if new_node in large_nodes_coords:
+                    continue
+                # Verify that new_node isn't already in zero_node_history
+                if new_node in zero_node_history:
+                    continue
+
+                # If new_node has displaced the target
+                if new_node == target_node_coords:
+                    # If target has been moved to the left, then this iteration is finished
+                    if del_node == (1,0):
+                        zero_nodes = []
+                        zero_node_coords = new_node
+                        target_node_coords = tuple(np.subtract(target_node_coords, del_node))
+                        zero_node_history = dict()
+                        zero_node_history[zero_node_coords] = step_count
+                        # break out of one of the for loops
+                        # (break alone would break out of the inner-most for loop only)
+                        raise NewIteration()
+
+                    else:
+                        continue
+
+                zero_node_history[new_node] = step_count
+        dummy = 123
+    except NewIteration:
+        pass
+
+print(f'The answer to part B is {step_count} steps are required.\n')
+
+
+
