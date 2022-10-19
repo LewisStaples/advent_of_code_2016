@@ -103,7 +103,7 @@ del large_node, largest_size, largest_used, line_num, large_nodes
 del smallest_size, smallest_used
 
 
-# COUNTING STEPS
+# COUNTING STEPS, PART ONE
 
 # Count steps to get the zero-node adjacent to the target
 step_count = 0
@@ -143,29 +143,34 @@ while True:
         if (max_x, 1) in zero_node_history:
             break
 
-# NEXT .... take all steps involving both zero-node and target-node to get target-node to (0,0)
-# Assume that all the target can reach its destination via solely moving to the left
-# Therefore, each step to the left can be treated as its own problem
+# COUNTING STEPS, PART TWO
+
+# Take all steps involving both zero-node and target-node to get target-node to (0,0)
+# Assume that the target can reach its destination via solely moving to the left
+# Therefore, each step to the left can be treated as an indepedent iteration in the process.
 
 step_count = min(zero_node_history[(max_x - 1, 0)], 2 + zero_node_history[(max_x, 1)])
-# zero_node_coords = (max_x - 1, 0)
 zero_node_history = dict()
 zero_node_history[(max_x - 1, 0)] = step_count
 del del_node, list_latest_zero_nodes, new_node, node, node_coords, node_count
 
 zero_nodes = []
+# While the target hasn't yet reached its destination
 while target_node_coords != (0,0):
+
     try:
+        # Collect the positions of the zero-node in the most recent step
         for zero_node_coords in zero_node_history:
             if zero_node_history[zero_node_coords] == step_count:
                 zero_nodes.append(zero_node_coords)
 
         step_count += 1
 
+        # Consider all the positions of the zero-node in the most recent step
         for zero_node_coords in zero_nodes:
+            # Try taking a new step in any of the four permitted directions
             for del_node in [(-1,0),(0,-1),(0,1),(1,0)]:
                 new_node = tuple(np.add(zero_node_coords, del_node))
-                    # new_node = tuple(np.add(node, del_node))
                     
                 # Verify that x and y values aren't outside of the grid's limits
                 if True in [new_node[0] < 0, new_node[1]< 0, new_node[0] > max_x, new_node[1] > max_y]:
@@ -191,14 +196,13 @@ while target_node_coords != (0,0):
                         raise NewIteration()
 
                     else:
+                        # Since the newest node has moved the target, but not in the desired direction
+                        # Disregard this movement, because this is not heading for the desired outcome
                         continue
-
+                # Keep a record of this move (as it might perhaps later lead to the desired outcome)
                 zero_node_history[new_node] = step_count
-        dummy = 123
     except NewIteration:
+        # continuing to break out of one of the for loops
         pass
 
 print(f'The answer to part B is {step_count} steps are required.\n')
-
-
-
