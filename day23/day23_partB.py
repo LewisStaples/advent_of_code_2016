@@ -2,11 +2,10 @@
 # https://adventofcode.com/2016/day/23
 
 
-
 list_input_instructions = []
 
 # Reading input from the input file
-input_filename='input.txt'
+input_filename='input_simplified.txt'
 print(f'\nUsing input file: {input_filename}\n')
 with open(input_filename) as f:
     # Pull in each line from the input file
@@ -36,6 +35,16 @@ def dec(in_str_list):
     if in_str_list[0].isnumeric():
         return
     globals()[in_str_list[0]] -= 1
+
+def mult(in_str_list):
+    x = eval(in_str_list[0])
+    y = eval(in_str_list[1])
+    globals()[in_str_list[0]] = x * y
+
+def add(in_str_list):
+    x = eval(in_str_list[0])
+    y = eval(in_str_list[1])
+    globals()[in_str_list[0]] = x + y
 
 def jnz_mult_shortcut(y, register_differences, in_str_list):
         for i in range(-1, y-1, -1):
@@ -75,6 +84,7 @@ def tgl(in_str_list):
     if True in [index_tgl_instruction < 0, index_tgl_instruction >= len(globals()['list_input_instructions'])]:
         return
 
+    print('Toggle command ....')
     toggle_command = {
         'inc':'dec',
         'dec':'inc',
