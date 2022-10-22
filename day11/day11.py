@@ -31,7 +31,7 @@ def sort_state(state):
 
 
 # Reading input from the input file
-input_filename='input_partB.txt'
+input_filename='input_sample0.txt'
 print(f'\nUsing input file: {input_filename} (Input file contents are shown below)\n')
 with open(input_filename) as f:
     floor_num_lookup = {'first': 1, 'second': 2, 'third': 3, 'fourth': 4}
