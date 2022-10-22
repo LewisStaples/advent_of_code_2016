@@ -52,7 +52,7 @@ for coords, ch in duct_positions.items():
                             least_dist_betw_numbered_pts[new_pairing] = stepcount_now
 
 
-# Traverse all permutations of numbered positions that can be 
+# PART A:  Traverse all permutations of numbered positions that can be 
 # visited and calculate the distances of each of them.
 # The final answer is the least distance of all of these paths.
 number_labels = list(duct_positions.values())
@@ -69,7 +69,24 @@ for sequence in itertools.permutations(number_labels):
         starting_point = sequence[i]
     min_stepcount = min(min_stepcount, total)
 
-print(f'\nThe answer is {min_stepcount}\n')
+print(f'The answer to part A is {min_stepcount}')
 
+# PART B:  Traverse all permutations of numbered positions that can be 
+# visited and calculate the distances of each of them.
+# The final answer is the least distance of all of these paths.
+# (Note ... all above was previously done for part A ... 
+# it is being repeated for B with the change that B's paths will return to '0')
 
+min_stepcount = float('inf')
+for sequence in itertools.permutations(number_labels):
+    starting_point = '0'
+    total = 0
+    sequence_end_at_zero = list(sequence)
+    sequence_end_at_zero.append('0')
+    for i in range(len(sequence_end_at_zero)):
+        pair = tuple(sorted([starting_point, sequence_end_at_zero[i]]))
+        total += least_dist_betw_numbered_pts[pair]
+        starting_point = sequence_end_at_zero[i]
+    min_stepcount = min(min_stepcount, total)
 
+print(f'The answer to part B is {min_stepcount}\n')
