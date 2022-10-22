@@ -9,14 +9,14 @@ import sys
 # Detect if this state is not valid
 def invalid_state(state):
     for chip_index, chip_floor in enumerate(state[0]):
-        gen_index = state[1][chip_index]
+        gen_floor = state[1][chip_index]
         # If chip and generator are both on the same floor
-        if chip_index == gen_index:
+        if chip_floor == gen_floor:
             # this particular chip is safe
             continue
         # Since this chip's generator is on another floor,
-        # If there are any generators on this floor
-        if chip_index in state[1]:
+        # If there are any generators on this chip's floor
+        if chip_floor in state[1]:
             # This chip will get damaged by the generator, so the state is invalid
             return True
 
@@ -31,7 +31,7 @@ def sort_state(state):
 
 
 # Reading input from the input file
-input_filename='input.txt'
+input_filename='input_partB.txt'
 print(f'\nUsing input file: {input_filename} (Input file contents are shown below)\n')
 with open(input_filename) as f:
     floor_num_lookup = {'first': 1, 'second': 2, 'third': 3, 'fourth': 4}
