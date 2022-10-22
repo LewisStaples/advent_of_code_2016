@@ -1,7 +1,7 @@
 # adventOfCode 2016 day 11
 # https://adventofcode.com/2016/day/11
 
-# import copy
+
 import itertools
 import sys
 
@@ -23,18 +23,15 @@ def invalid_state(state):
     # No chips have generators that are a threat, thus the state is valid (hence, not invalid)
     return False
 
-
-# # # This converts lists to tuples.  It also orders chips in ascending order and re-orders the generators to continue to match the chips
-# # def make_state_immutable(state):
 # This orders chips in ascending order and re-orders the generators to continue to match the chips
 def sort_state(state):
     new_state_0 = sorted(state[0])
     new_state_1 = [x for _,x in sorted(zip(state[0],state[1]))]
-    # return_state = (tuple(new_state_0), tuple(new_state_1))
-    return tuple(new_state_0), tuple(new_state_1), state[2], state[3]
+    return tuple(new_state_0), tuple(new_state_1), state[2]
+
 
 # Reading input from the input file
-input_filename='input_sample0.txt'
+input_filename='input.txt'
 print(f'\nUsing input file: {input_filename} (Input file contents are shown below)\n')
 with open(input_filename) as f:
     floor_num_lookup = {'first': 1, 'second': 2, 'third': 3, 'fourth': 4}
@@ -87,12 +84,12 @@ print()
 
 del floor_num_lookup, i_chip, i_gen, i_right, floor_num, index_str
 del input_filename, f, in_string
+# Defining indices in current_state_L (note the _L indicates it has lists ... without the L has tuples)
 # index 0:  ordered list of floor numbers with a chip
 # index 1:  list of floor numbers with a generator
 # (each generator is at the same index as its matching chip)
 # index 2:  elevator floor
-# index 3:  elapsed time
-current_state_L = [[], [], 1, 0]
+current_state_L = [[], [], 1]
 for floor_chip in range(1, 5):
     for element in initial_state_chips[floor_chip]:
         floor_gen = initial_state_gens[element]
@@ -101,14 +98,11 @@ for floor_chip in range(1, 5):
 del floor_chip, floor_gen, element, initial_state_chips, initial_state_gens
 
 # Convert from using lists to using tuples
-# current_state = tuple(tuple(x) if x is tuple for x in current_state_L else x)
-# current_state = tuple(x for x in current_state_L)
 current_state = tuple(
     [
         tuple(current_state_L[0]),
         tuple(current_state_L[1]),
-        current_state_L[2],
-        current_state_L[3]
+        current_state_L[2]
     ]
 )
 del current_state_L
@@ -116,10 +110,9 @@ del current_state_L
 known_states = dict()
 current_time = 0
 known_states[current_state] = current_time
-next_elevator_floor_map = {1:[2], 2:[1,3], 3:[2,4], 4:3}
+next_elevator_floor_map = {1:[2], 2:[1,3], 3:[2,4], 4:[3]}
 
 while True:
-    dummy = 123
     states_to_check = [k for k, v in known_states.items() if v == current_time]
     current_time += 1
     for current_state in states_to_check:
@@ -127,17 +120,9 @@ while True:
         this_ele_fl = current_state[2]
         # List all devices on the same floor as the elevator
         devices_on_this_fl = set()
-        # helper_list_chips = set()
-        # helper_list_generators = set()
         for chip_index, value in enumerate(current_state[0]):
             if value == this_ele_fl:
-                # if state[1][chip_index] not in helper_list_chips:
                 devices_on_this_fl.add((0,chip_index))
-                    # helper_list_chips.add(state[1][chip_index])
-                # if state[1][chip_index] == this_ele_fl:
-                #     # if state[0] not in helper_list_generators:
-                #     devices_on_this_fl.add((1, chip_index))
-                #         # helper_list_generators.add(state[0])
         del chip_index, value
 
         for index, value in enumerate(current_state[1]):
@@ -154,8 +139,7 @@ while True:
                 new_state = [
                     list([x for x in current_state[0]]),
                     list([x for x in current_state[1]]),
-                    next_ele_fl,
-                    current_time
+                    next_ele_fl
                 ]
                 for move_piece in move:
                     new_state[move_piece[0]][move_piece[1]] = next_ele_fl
@@ -172,53 +156,8 @@ while True:
                 # Check if it has solved the problem
                 # check if this is the answer ... if yes ... output the solution
                 if set(new_state[0]) == {4} and set(new_state[1]) == {4}:
-                    print(f'The answer to A has been found:  {new_state[3]} steps are required')
+                    print(f'The answer to A has been found:  {current_time} steps are required\n')
                     sys.exit('Program exiting successfully')
-                # dummy = 123
 
-                known_states[current_state] = current_time
-
-
-
-
-# while True:
-#     current_state, current_state_immutable = next_states.pop(0)
-#     # current_state_immutable, ele_floor, step_count = make_state_immutable(current_state)
-#     if current_state_immutable not in known_states:
-#         # check if this is the answer ... if yes ... output the solution
-#         if set(current_state[0]) == {4} and set(current_state[1]) == {4}:
-#             print(f'The answer to A has been found:  {current_state[3]} steps are required')
-#             sys.exit('Program exiting successfully')
-#         # known_states[current_state_immutable] = (ele_floor, step_count)
-#         known_states.add(current_state_immutable)
-
-#         # determine adjacent states, check if valid, check if not in known_states
-#         # if all above pass, add adjacent to next_states
-#         next_elevator_floor_map = {1:[2], 2:[1,3], 3:[2,4], 4:3}
-#         this_ele_fl = current_state[2]
-#         coords_all_devices_on_cur_fl = []
-#         for ele_num in [0,1]:
-#             for i,value in enumerate(current_state[ele_num]):
-#                 if current_state[ele_num][i] == this_ele_fl:
-#                     coords_all_devices_on_cur_fl.append((ele_num,i))
-#         for next_ele_fl in next_elevator_floor_map[this_ele_fl]: # Looping through all valid next floors
-#             for device_on_cur_fl in coords_all_devices_on_cur_fl: # Loop through all options of a single device to move
-#                 next_state = copy.deepcopy(current_state)
-#                 next_state[2] = next_ele_fl
-#                 next_state[device_on_cur_fl[0]][device_on_cur_fl[1]] = next_ele_fl
-#             # itertools.combinations(coords_all_devices_on_cur_fl, 2)
-#             #     dummy = 123
-
-#         dummy = 123
-
-#     break
-
-# print('Program has ended without finding the answer\n')
-
-# # current_states_list.append(current_state)
-# # current_states_set.add(convert_state_to_hashable(current_state))
-
-
-
-
+                known_states[new_state] = current_time
 
